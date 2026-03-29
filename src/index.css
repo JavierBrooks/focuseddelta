@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+/* Layout and breakpoints — theme colors stay in components */
+.app-shell {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: min(100%, 36rem);
+  margin-inline: auto;
+  padding: max(0.75rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right))
+    max(1.25rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+}
+
+@media (min-width: 640px) {
+  .app-shell {
+    max-width: 42rem;
+    padding: 1.25rem 1.5rem 2rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .app-shell {
+    max-width: 48rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-shell {
+    max-width: 56rem;
+  }
+}
+
+.goal-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .goal-form-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+  }
+}
+
+.goal-form-grid .goal-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .goal-form-grid .goal-input--grow {
+    flex: 1 1 10rem;
+    width: auto;
+    min-width: 7rem;
+  }
+
+  .goal-form-grid .goal-input--narrow {
+    flex: 0 0 auto;
+    width: 4.5rem;
+    min-width: 4.5rem;
+  }
+}
+
+.cta-btn {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .cta-btn {
+    width: auto;
+  }
+}
+
+.cal-week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin-top: 0.625rem;
+}
+
+@media (min-width: 640px) {
+  .cal-week-grid {
+    gap: 0.45rem;
+  }
+}
+
+.cal-week-day {
+  min-width: 0;
+  text-align: center;
+  font-size: clamp(0.7rem, 2.8vw, 0.95rem);
+  padding: clamp(0.45rem, 2vw, 0.625rem) 0.2rem;
+}
+
+.month-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.month-nav__title {
+  flex: 1 1 auto;
+  text-align: center;
+  min-width: 0;
+  font-size: clamp(0.8125rem, 3.2vw, 1rem);
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: clamp(0.25rem, 1.5vw, 0.35rem);
+  margin-top: 0.625rem;
+}
+
+.month-day-cell {
+  min-width: 0;
+  padding: clamp(0.35rem, 2vw, 0.625rem) 0.15rem;
+  font-size: clamp(0.68rem, 3vw, 0.95rem);
+}
+
+.goal-card {
+  padding: clamp(0.75rem, 3vw, 1rem);
+  word-break: break-word;
+}
+
+.app-title {
+  font-size: clamp(1.05rem, 4.2vw, 1.5rem);
+  line-height: 1.25;
+}
