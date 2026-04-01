@@ -1,6 +1,5 @@
 {
   "name": "focusedapp",
-  "homepage": "https://JavierBrooks.github.io/focuseddelta",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,14 +8,10 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
     "tailwind:init": "tailwindcss init -p"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
-    "gh-pages": "^6.3.0",
-    "git": "^0.1.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
