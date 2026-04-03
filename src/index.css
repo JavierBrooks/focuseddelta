@@ -133,3 +133,77 @@
   font-size: clamp(1.05rem, 4.2vw, 1.5rem);
   line-height: 1.25;
 }
+
+/* Routed app shell: top bar + scroll main + mobile bottom nav */
+.app-root-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.app-top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  flex-shrink: 0;
+}
+
+.app-main-routed {
+  flex: 1 1 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Reserve space for fixed bottom nav on small screens */
+@media (max-width: 639px) {
+  .app-main-routed {
+    padding-bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.app-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .app-bottom-nav {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    padding: 0.35rem 0.5rem calc(0.35rem + env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
+    justify-content: space-around;
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+}
+
+.app-desktop-nav {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 640px) {
+  .app-desktop-nav {
+    display: flex;
+  }
+}
+
+.app-nav-link {
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.app-nav-link--active {
+  font-weight: 700;
+}

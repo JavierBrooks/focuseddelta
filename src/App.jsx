@@ -1,6 +1,23 @@
 // Step: Restriction System (Rewards + Penalties Enforcement)
 
-import { useState, useEffect, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  createContext,
+  useContext,
+  useRef,
+} from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+  NavLink,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 
 
 // ---------- Helpers ----------
@@ -1335,9 +1352,352 @@ function MonthlyCalendar({ goal, toggleDate, currentMonth, setCurrentMonth, t })
   );
 }
 
-// ---------- Main App ----------
+// ---------- App shell & routing ----------
 
-export default function App() {
+const GoalsAppContext = createContext(null);
+
+function useGoalsApp() {
+  const v = useContext(GoalsAppContext);
+  if (!v) throw new Error("useGoalsApp must be used within GoalsAppProvider");
+  return v;
+}
+
+function BottomNav() {
+  const { t, darkMode } = useGoalsApp();
+  const base = {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 2,
+    padding: "6px 4px",
+    borderRadius: 10,
+    textDecoration: "none",
+    fontSize: "0.7rem",
+    fontWeight: 700,
+    color: t.textMuted,
+    border: "1px solid transparent",
+    minWidth: 0,
+  };
+  return (
+    <nav
+      className="app-bottom-nav"
+      style={{
+        background: t.cardBg,
+        borderTop: `1px solid ${t.border}`,
+        boxShadow: darkMode
+          ? "0 -6px 24px rgba(0,0,0,0.45)"
+          : "0 -4px 16px rgba(0,0,0,0.08)",
+      }}
+      aria-label="Primary navigation"
+    >
+      <NavLink
+        to="/"
+        end
+        style={({ isActive }) => ({
+          ...base,
+          color: isActive ? t.primary : t.textMuted,
+          background: isActive ? `${t.primary}14` : "transparent",
+          borderColor: isActive ? t.primary : "transparent",
+        })}
+      >
+        <span aria-hidden style={{ fontSize: "1.15rem" }}>
+          📋
+        </span>
+        <span>Goals</span>
+      </NavLink>
+      <NavLink
+        to="/add"
+        style={({ isActive }) => ({
+          ...base,
+          color: isActive ? t.primary : t.textMuted,
+          background: isActive ? `${t.primary}14` : "transparent",
+          borderColor: isActive ? t.primary : "transparent",
+        })}
+      >
+        <span aria-hidden style={{ fontSize: "1.15rem" }}>
+          ➕
+        </span>
+        <span>Add</span>
+      </NavLink>
+    </nav>
+  );
+}
+
+function AppLayout() {
+  const { t, darkMode, setDarkMode } = useGoalsApp();
+
+  return (
+    <div
+      className="app-root-layout"
+      style={{
+        fontFamily: "system-ui, -apple-system, Segoe UI, sans-serif",
+        background: t.pageBg,
+        color: t.text,
+        colorScheme: darkMode ? "dark" : "light",
+      }}
+    >
+      <header
+        className="app-top-bar"
+        style={{
+          background: t.pageBg,
+          borderBottom: `1px solid ${t.border}`,
+          padding:
+            "max(0.5rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 0.65rem max(1rem, env(safe-area-inset-left))",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "56rem",
+            margin: "0 auto",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            flexWrap: "wrap",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              flexWrap: "wrap",
+              minWidth: 0,
+              flex: "1 1 auto",
+            }}
+          >
+            <h1 className="app-title" style={{ margin: 0, color: t.text }}>
+              Focused
+            </h1>
+            <nav className="app-desktop-nav" aria-label="Primary">
+              <NavLink
+                to="/"
+                end
+                className={({ isActive }) =>
+                  `app-nav-link${isActive ? " app-nav-link--active" : ""}`
+                }
+                style={({ isActive }) => ({
+                  color: isActive ? t.primary : t.textMuted,
+                  borderColor: isActive ? t.primary : "transparent",
+                  background: isActive ? `${t.primary}18` : "transparent",
+                })}
+              >
+                Goals
+              </NavLink>
+              <NavLink
+                to="/add"
+                className={({ isActive }) =>
+                  `app-nav-link${isActive ? " app-nav-link--active" : ""}`
+                }
+                style={({ isActive }) => ({
+                  color: isActive ? t.primary : t.textMuted,
+                  borderColor: isActive ? t.primary : "transparent",
+                  background: isActive ? `${t.primary}18` : "transparent",
+                })}
+              >
+                Add goal
+              </NavLink>
+            </nav>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flexShrink: 0,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() =>
+                window.alert(
+                  "Profile and account settings will live here in a future update."
+                )
+              }
+              aria-label="Profile and settings"
+              style={{
+                padding: "8px 12px",
+                borderRadius: 8,
+                border: `1px solid ${t.border}`,
+                background: t.cardBg,
+                color: t.text,
+                cursor: "pointer",
+                fontWeight: 600,
+                fontSize: "0.85rem",
+              }}
+            >
+              Profile
+            </button>
+            <button
+              type="button"
+              onClick={() => setDarkMode(v => !v)}
+              aria-pressed={darkMode}
+              aria-label={
+                darkMode ? "Switch to light mode" : "Switch to dark mode"
+              }
+              style={{
+                padding: "8px 14px",
+                borderRadius: 8,
+                border: `1px solid ${t.border}`,
+                background: t.cardBg,
+                color: t.text,
+                cursor: "pointer",
+                fontWeight: 600,
+                boxShadow: t.cardShadow,
+              }}
+            >
+              {darkMode ? "☀️ Light" : "🌙 Dark"}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="app-main-routed app-shell">
+        <Outlet />
+      </main>
+
+      <BottomNav />
+    </div>
+  );
+}
+
+function GoalsPage() {
+  const {
+    t,
+    goals,
+    penalties,
+    allowedEntertainment,
+    checkPenalties,
+    toggleDate,
+    startEditGoal,
+    deleteGoal,
+    getProgress,
+    getStatus,
+    isRewardUnlocked,
+    currentMonth,
+    setCurrentMonth,
+  } = useGoalsApp();
+
+  return (
+    <>
+      <p
+        style={{
+          margin: "0 0 16px",
+          color: t.textMuted,
+          fontSize: "0.95rem",
+        }}
+      >
+        Goal tracker and accountability — mark days, track streaks, and stay
+        on target.
+      </p>
+
+      <div
+        style={{
+          background: t.warningBg,
+          color: t.warningText,
+          padding: "12px 14px",
+          borderRadius: "8px",
+          marginBottom: "12px",
+          border: `1px solid ${t.warningBorder}`,
+        }}
+      >
+        <p style={{ margin: "0 0 6px" }}>⚠️ Penalties: {penalties}</p>
+        <p style={{ margin: 0 }}>
+          🎮 Allowed entertainment: {allowedEntertainment} hrs
+        </p>
+      </div>
+
+      <button
+        type="button"
+        className="cta-btn"
+        style={{
+          padding: "10px 14px",
+          borderRadius: "8px",
+          border: "none",
+          background: t.primary,
+          color: t.primaryText,
+          cursor: "pointer",
+          fontWeight: 600,
+          marginBottom: 16,
+        }}
+        onClick={checkPenalties}
+      >
+        Run Weekly Check
+      </button>
+
+      {goals.length === 0 ? (
+        <p style={{ color: t.textMuted, marginTop: 8 }}>
+          No goals yet. Use <strong style={{ color: t.text }}>Add goal</strong>{" "}
+          to create one.
+        </p>
+      ) : null}
+
+      {goals.map(goal => (
+        <GoalCard
+          key={goal.id}
+          goal={goal}
+          getProgress={getProgress}
+          getStatus={getStatus}
+          toggleDate={toggleDate}
+          onEditGoal={startEditGoal}
+          onDeleteGoal={deleteGoal}
+          isRewardUnlocked={isRewardUnlocked}
+          currentMonth={currentMonth}
+          setCurrentMonth={setCurrentMonth}
+          t={t}
+        />
+      ))}
+    </>
+  );
+}
+
+function AddGoalPage() {
+  const {
+    form,
+    setForm,
+    handleChange,
+    saveGoal,
+    editingGoalId,
+    cancelEdit,
+    t,
+  } = useGoalsApp();
+
+  return (
+    <>
+      <h2
+        style={{
+          margin: "0 0 6px",
+          fontSize: "1.2rem",
+          color: t.text,
+        }}
+      >
+        {editingGoalId != null ? "Edit goal" : "New goal"}
+      </h2>
+      <p style={{ margin: "0 0 16px", color: t.textMuted, fontSize: "0.9rem" }}>
+        {editingGoalId != null
+          ? "Update details below, then save changes."
+          : "Fill in the form and add your goal to the list."}
+      </p>
+      <GoalForm
+        form={form}
+        setForm={setForm}
+        handleChange={handleChange}
+        onSaveGoal={saveGoal}
+        editingGoalId={editingGoalId}
+        onCancelEdit={cancelEdit}
+        t={t}
+      />
+    </>
+  );
+}
+
+function GoalsAppProvider({ children }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const prevPathRef = useRef(location.pathname);
+
   const [goals, setGoals] = useState(() => {
     try {
       const raw = localStorage.getItem("goals");
@@ -1356,7 +1716,9 @@ export default function App() {
 
   const [penalties, setPenalties] = useState(0);
 
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem("focusedapp-theme") === "dark");
+  const [darkMode, setDarkMode] = useState(
+    () => localStorage.getItem("focusedapp-theme") === "dark"
+  );
 
   const t = darkMode ? THEMES.dark : THEMES.light;
 
@@ -1371,12 +1733,17 @@ export default function App() {
   const cancelEdit = useCallback(() => {
     setEditingGoalId(null);
     setForm(getEmptyForm());
-  }, []);
+    navigate("/");
+  }, [navigate]);
 
-  const startEditGoal = useCallback((goal) => {
-    setEditingGoalId(goal.id);
-    setForm(goalToForm(goal));
-  }, []);
+  const startEditGoal = useCallback(
+    goal => {
+      setEditingGoalId(goal.id);
+      setForm(goalToForm(goal));
+      navigate("/add");
+    },
+    [navigate]
+  );
 
   const saveGoal = () => {
     if (!form.name) return;
@@ -1408,6 +1775,7 @@ export default function App() {
       );
       setEditingGoalId(null);
       setForm(getEmptyForm());
+      navigate("/");
       return;
     }
 
@@ -1431,6 +1799,7 @@ export default function App() {
 
     setGoals(prev => [...prev, goal]);
     setForm(getEmptyForm());
+    navigate("/");
   };
 
   const toggleDate = useCallback(async (goal, date) => {
@@ -1472,7 +1841,7 @@ export default function App() {
     );
   }, []);
 
-  const deleteGoal = useCallback((goalId) => {
+  const deleteGoal = useCallback(goalId => {
     setGoals(prev => prev.filter(g => g.id !== goalId));
     setEditingGoalId(eid => {
       if (eid === goalId) {
@@ -1483,7 +1852,7 @@ export default function App() {
     });
   }, []);
 
-  const getStatus = (goal) => {
+  const getStatus = goal => {
     const progress = getProgress(goal);
 
     if (progress >= goal.target) {
@@ -1493,11 +1862,8 @@ export default function App() {
     return { type: "fail", message: `If you fail: ${goal.punishment}` };
   };
 
-  const isRewardUnlocked = (goal) => {
-    return getProgress(goal) >= goal.target;
-  };
+  const isRewardUnlocked = goal => getProgress(goal) >= goal.target;
 
-  // Read latest goals via functional setGoals; do not close over stale `goals` from render.
   const checkPenalties = useCallback(() => {
     setGoals(prev => {
       const underTarget = prev.reduce(
@@ -1511,6 +1877,16 @@ export default function App() {
     });
   }, []);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- reset new-goal form when route enters /add (not edit) */
+  useEffect(() => {
+    const prev = prevPathRef.current;
+    if (location.pathname === "/add" && prev !== "/add" && editingGoalId == null) {
+      setForm(getEmptyForm());
+    }
+    prevPathRef.current = location.pathname;
+  }, [location.pathname, editingGoalId]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
   useEffect(() => {
     localStorage.setItem("goals", JSON.stringify(goals));
   }, [goals]);
@@ -1519,9 +1895,6 @@ export default function App() {
     localStorage.setItem("focusedapp-theme", darkMode ? "dark" : "light");
   }, [darkMode]);
 
-  // Period-end evaluation: derive updates from the latest goals via functional setState only.
-  // When nothing changes, the same goals reference is returned so React skips an extra render.
-  // Penalties are bumped in a microtask so we never call setPenalties synchronously inside the updater.
   /* eslint-disable react-hooks/set-state-in-effect -- intentional sync when goals commit (incl. storage rehydrate) */
   useEffect(() => {
     setGoals(prev => {
@@ -1538,111 +1911,49 @@ export default function App() {
   }, [goals]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-const allowedEntertainment = Math.max(0, 10 - penalties * 2);
+  const allowedEntertainment = Math.max(0, 10 - penalties * 2);
 
-/*Main App Return */
+  const ctx = {
+    goals,
+    form,
+    setForm,
+    handleChange,
+    saveGoal,
+    cancelEdit,
+    editingGoalId,
+    startEditGoal,
+    deleteGoal,
+    toggleDate,
+    getProgress,
+    getStatus,
+    isRewardUnlocked,
+    currentMonth,
+    setCurrentMonth,
+    penalties,
+    allowedEntertainment,
+    checkPenalties,
+    t,
+    darkMode,
+    setDarkMode,
+  };
+
   return (
-    <div
-      className="app-shell"
-      style={{
-        fontFamily: "system-ui, -apple-system, Segoe UI, sans-serif",
-        background: t.pageBg,
-        color: t.text,
-        minHeight: "100dvh",
-        colorScheme: darkMode ? "dark" : "light",
-      }}
-    >
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 20,
-          flexWrap: "wrap",
-        }}
-      >
-        <h1 className="app-title" style={{ margin: 0, color: t.text, flex: "1 1 12rem", minWidth: 0 }}>
-          Goal Tracker + Restrictions
-        </h1>
-        <button
-          type="button"
-          onClick={() => setDarkMode(v => !v)}
-          aria-pressed={darkMode}
-          aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-          style={{
-            padding: "8px 14px",
-            borderRadius: 8,
-            border: `1px solid ${t.border}`,
-            background: t.cardBg,
-            color: t.text,
-            cursor: "pointer",
-            fontWeight: 600,
-            boxShadow: t.cardShadow,
-            flexShrink: 0,
-          }}
-        >
-          {darkMode ? "☀️ Light" : "🌙 Dark"}
-        </button>
-      </header>
+    <GoalsAppContext.Provider value={ctx}>{children}</GoalsAppContext.Provider>
+  );
+}
 
-      <GoalForm
-        form={form}
-        setForm={setForm}
-        handleChange={handleChange}
-        onSaveGoal={saveGoal}
-        editingGoalId={editingGoalId}
-        onCancelEdit={cancelEdit}
-        t={t}
-      />
-
-      <div
-        style={{
-          background: t.warningBg,
-          color: t.warningText,
-          padding: "12px 14px",
-          borderRadius: "8px",
-          marginBottom: "12px",
-          border: `1px solid ${t.warningBorder}`,
-        }}
-      >
-        <p style={{ margin: "0 0 6px" }}>⚠️ Penalties: {penalties}</p>
-        <p style={{ margin: 0 }}>🎮 Allowed entertainment: {allowedEntertainment} hrs</p>
-      </div>
-
-      <button
-        type="button"
-        className="cta-btn"
-        style={{
-          padding: "10px 14px",
-          borderRadius: "8px",
-          border: "none",
-          background: t.primary,
-          color: t.primaryText,
-          cursor: "pointer",
-          fontWeight: 600,
-          marginBottom: 16,
-        }}
-        onClick={checkPenalties}
-      >
-        Run Weekly Check
-      </button>
-
-      {goals.map(goal => (
-        <GoalCard
-          key={goal.id}
-          goal={goal}
-          getProgress={getProgress}
-          getStatus={getStatus}
-          toggleDate={toggleDate}
-          onEditGoal={startEditGoal}
-          onDeleteGoal={deleteGoal}
-          isRewardUnlocked={isRewardUnlocked}
-          currentMonth={currentMonth}
-          setCurrentMonth={setCurrentMonth}
-          t={t}
-        />
-      ))}
-    </div>
+export default function App() {
+  return (
+    <BrowserRouter>
+      <GoalsAppProvider>
+        <Routes>
+          <Route element={<AppLayout />}>
+            <Route index element={<GoalsPage />} />
+            <Route path="add" element={<AddGoalPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </GoalsAppProvider>
+    </BrowserRouter>
   );
 }
